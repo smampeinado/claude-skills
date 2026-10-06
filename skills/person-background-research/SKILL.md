@@ -1,82 +1,73 @@
 ---
 name: person-background-research
-description: Builds a sourced, professional background brief on a specific individual — career history, current role, education, public work (writing, talks, podcasts, papers, companies, investments), stated interests, and recent news — tailored to why the user is researching them (meeting prep, cold outreach, interview, panel, networking, due diligence on a potential co-founder or investor). Use whenever the user names a person and wants to know who they are, what they've done, or how to approach them, even if they don't say "research." Triggers on "who is," "look up," "background on," "research this person," "prep me for my meeting with," "what do I need to know about," "dossier," "bio," "tell me about [name]."
+description: Deep research on one individual before cold outreach — rebuilds their resume from LinkedIn (pasted or PDF) with what each company does, reads the story of their career path, digs into education (down to high school and school mascots), catalogs everything they've written and every interview they've given, and mines it all for personal details that could make them smile (hometown, hobbies, pets, first job, first byline). Flags topics to avoid and the hook everyone else already uses. Saves a sourced dossier to research/<name>.md. Research only — does not draft the email. Use whenever the user is about to cold-email, DM, or pitch a specific person and wants to know everything about them first. Triggers on "deep research on," "dig into," "background on," "everything about," "before I email," "research this person," "full dossier," "who is."
 ---
 
 # Person Background Research
 
-The user names a person and wants to understand them. Produce a **short, sourced brief** about that person's **public professional life**, shaped around why the user cares. Every claim has a source. Anything you couldn't verify is labeled as such.
+The user is about to cold-email someone and wants to know as much as possible about them first. The goal is **personal connection**: finding the detail that makes the recipient smile ("you started as a shop clerk at Kroger?", "your first byline was in the Lakeside High *Spartan*"), not mastering their technical work.
 
-## Scope: what's in and out
+You do the research. You **don't** write the email, subject lines, or opening lines. Hand off to `connection-finder` (overlaps with the user's background), `fun-angle`, or `cold-email-coach` for that.
 
-**In:** professional history, current role and company, education, board seats, companies founded or backed, published writing, talks, podcasts, interviews, papers, patents, public social posts on professional topics, awards, press coverage, publicly stated views and interests.
+## Privacy rule
 
-**Out — don't collect or report, even if found:** home address, personal phone or email, family members (unless they're public figures in their own right or the person discusses them publicly in a professional context), health, religion, sexual orientation, finances beyond what's public in a professional role (e.g., SEC filings), criminal records of private individuals, and anything from leaked or breached data. If the user asks for these, decline briefly and offer the professional brief instead.
+**Include a personal detail only if the person shared it publicly themselves** (their own posts, writing, interviews, bio, personal site) **or, for public figures, it appeared in reputable press or Wikipedia.**
 
-If the request looks like stalking, harassment, or locating someone who doesn't want to be found, stop and say why.
+- ✅ OK: "Said on a 2024 podcast they have three kids." "Lives in the Bay Area." "Surfs in Baja most summers (own Instagram caption, public)."
+- ❌ Never collect: home address, personal phone or email, kids' names or schools, real-time or recent location, anything inferred from photo metadata or backgrounds, people-search or data-broker sites, leaked data, paid lookup tools (RocketReach, Apollo, etc.) unless the user explicitly authorizes them for that search.
+- City/region-level location only.
 
-## Step 0: Get the two things you need
+Tag every personal detail in the dossier:
+- **✅ safe to mention** — fine to reference in a cold email.
+- **👀 background only** — helps the user understand the person, but referencing it would feel like surveillance (family, vacations, where they live, anything from years-old personal posts).
 
-1. **Who, exactly.** Name plus at least one disambiguator: company, title, school, city, or a LinkedIn/URL. If the name is common and the user gave nothing else, ask one short question before searching.
-2. **Why.** Purpose determines what matters. If not stated, ask once: *"What's this for — a meeting, cold outreach, an interview, or something else?"* If the user won't say, default to **meeting prep**.
+If the request looks like stalking, harassment, or locating someone, stop and say why.
 
-| Purpose | Emphasize |
-|---|---|
-| Meeting / coffee chat prep | Current role and priorities, recent news, conversation openers, shared ground |
-| Cold outreach | What they care about right now, what they've said publicly, hooks for a specific ask |
-| Job interview (they're the interviewer) | Their career path, team/org, what they've said about hiring and culture |
-| Panel / speaker intro | Accurate bio, signature accomplishments, correct title and pronunciation if findable |
-| Potential investor | Fund, thesis, check size, stage, portfolio overlaps and conflicts, public takes |
-| Potential co-founder / hire / partner | Track record, prior companies and outcomes, references in public record, red flags |
+## Step 0: Inputs
+
+Ask in one message for anything missing:
+
+1. **Who:** full name + one disambiguator (company, title, school, city, or URL).
+2. **LinkedIn:** "Can you paste their LinkedIn profile or upload the 'Save to PDF' export? I can't see most of LinkedIn without logging in." If the user can't, proceed with public sources and note the resume may be incomplete.
+3. **Their resume,** if the user has one.
+
+Then scale effort to footprint:
+- **Public figure** (Wikipedia page, frequent press): full depth, read Wikipedia first.
+- **Semi-private** (LinkedIn, a few posts or talks): full workflow, expect thinner sections.
+- **Thin profile** (almost nothing public): say so plainly, don't pad, and suggest a warm intro (`warm-intro-finder`).
 
 ## Workflow
 
-1. **Lock identity.** Find the canonical profile (LinkedIn, company bio page, personal site, faculty page). Confirm it's the right person by matching at least two disambiguators. If there are multiple plausible matches, say so and list them — never blend two people into one profile.
-2. **Search in layers**, stopping when you have enough for the purpose:
-   - **Primary/self-authored:** LinkedIn, personal site, company or faculty bio, Substack/blog, X/Bluesky/Threads, GitHub, Google Scholar.
-   - **Their voice:** podcast appearances, conference talks (YouTube), interviews, op-eds, books. These are the best source of what they actually care about.
-   - **Third-party:** news coverage (last 24 months first), Crunchbase/PitchBook-style profiles, SEC filings (Form 4, proxy statements) for public-company executives and directors, press releases.
-   - **Stanford-specific (if the user is at Stanford):** GSB/Stanford news, faculty profiles, alumni features. For licensed people databases (BoardEx, Capital IQ people search, PitchBook investor profiles), hand off to the `gsb-library-scout` skill rather than guessing what's licensed.
-3. **Date everything.** Roles change. Note when each key fact was last confirmed (e.g., "per LinkedIn, as of Oct 2026"). Flag anything older than ~12 months that could be stale.
-4. **Find the angle.** Pull 2–4 specific, non-obvious hooks tied to the purpose — a podcast quote, a recent post, an unusual career move, a cause they champion. Generic hooks ("you both like tech") don't count. If the user has shared their own background, note genuine overlaps; for deeper overlap-finding, the `connection-finder` skill fits.
-5. **Self-check before output.** Every factual claim has a link. No claim comes from a source about a different person with the same name. Unverified items are marked.
+Lock identity first: match at least two disambiguators before using any source. If multiple people share the name, list them and ask. Never blend two people.
 
-## Output format
+Then research each section. Where to look for each is in [references/sources.md](references/sources.md); what to flag or avoid is in [references/avoid-list.md](references/avoid-list.md).
 
-No preamble. Keep the whole brief under ~400 words unless the user asks for more.
+1. **Resume.** Use their actual resume if public (personal site, speaker kit, old PDF). Otherwise rebuild it from LinkedIn. For each role: title, dates, and a one-line description of what the company does, its size or stage when they joined, and anything notable (acquired, IPO'd, shut down).
+2. **Career story.** What's notable about the path: unusually fast promotions, career switches, long tenure, a step down to go somewhere interesting, a humble start, boomerang returns. Include **why** they left or joined each role, in their own words where you can find them.
+3. **Education.** Every school, degree, and year, back to high school when findable. Include the **mascot** for each school and any famous **rivalries**. Note clubs, teams, school papers, or honors they mention.
+4. **Hometown and origin.** Where they grew up, moves, immigration story, first job (especially humble or surprising ones).
+5. **Writing.** Catalog everything: books, papers, articles, op-eds, blog/Substack posts, notable social threads. Find their **first published piece**. Read in full: the first piece, the most personal pieces, and the ~10 most recent. Skim the rest only for personal details. Note **how they write** (formal/casual, long/short, emoji, humor) so the user can match it.
+6. **Interviews.** Podcasts, video, written Q&As, profiles. These are the richest source of personal details; prioritize long-form (45+ min) ones. Capture specific anecdotes (year, place, names), **numbers they cite** about their work, and **contrarian opinions**.
+7. **Personal life (within the privacy rule).** Hobbies, sports teams, pets, causes, boards and nonprofits, family (only as self-disclosed, e.g. "has three kids"), city/region they live in, places they love to travel. Look for small joyful things: a running joke, a quirky hobby, a dog with an Instagram.
+8. **Who helped them.** Mentors they credit, stories of a cold email or lucky break that changed their life.
+9. **Right now.**
+   - Their last 90 days of posts and talks: what's on their mind.
+   - Role-specific focus — **journalist:** their last 5 stories and what they're covering now; **VC:** fund, stated investment focus, recent deals; **CEO/exec:** recent company moves, launches, hiring; **hiring manager:** open roles on their team, posts about culture or hiring.
+   - News: last **30 days** on the person, last **90 days** on their company.
+10. **Overused hooks.** What everyone already emails them about (the famous exit, the viral post, the obvious school tie). Name it so the user doesn't send the 500th version.
+11. **Contact.**
+    - Any stated preferences ("how to pitch me," "I don't read cold DMs," preferred channel).
+    - **Work email:** look for it publicly (personal site, author bios, press releases, papers, GitHub commits on public work repos). If not found, infer the company's email pattern from other public employee addresses and label it **inferred, unverified**. Never personal email.
+12. **Avoid list.** Run the dossier against [references/avoid-list.md](references/avoid-list.md) and flag what to stay away from and why.
 
-```
-## [Full Name] — [Current Title], [Organization]
-*Researched for: [purpose] · Confidence in identity: High / Medium / Low*
+## Output
 
-**In one line:** [who they are and why they matter to this purpose]
-
-**Career snapshot**
-- [Current role, since YYYY] — [source]
-- [Prior role(s), most relevant first] — [source]
-- [Education] — [source]
-
-**What they care about right now**
-- [Theme + evidence: quote, post, talk, with date] — [source]
-
-**Recent news (last 12–24 months)**
-- [Date] [Item] — [source]
-
-**Angles for [purpose]**
-1. [Specific hook and how to use it]
-2. ...
-
-**Watch-outs**
-- [Sensitive topics, recent controversy, conflicts, things not to bring up, stale info]
-
-**Couldn't verify**
-- [Claims found but not confirmed, or gaps]
-```
+Fill [templates/dossier.md](templates/dossier.md) and save it to `research/<firstname-lastname>.md` in the current working directory (create `research/` if needed). If the file already exists, update it in place and note what changed at the top. In chat, reply with only the **Top 5 hooks**, the **avoid list**, and the file path.
 
 ## Rules
 
-- **Cite or cut.** No source, no claim. Prefer the person's own words and primary sources over aggregators.
-- **Never invent.** Don't guess titles, dates, alma maters, or quotes. "Not found" is a valid answer.
-- **Quote sparingly.** Short quotes only, with attribution; summarize everything else.
-- **Don't overreach in tone.** The brief is for the user's preparation. Remind the user, when relevant, not to open an email or meeting by reciting someone's history back to them — use one well-chosen hook.
-- **Respect platform rules.** Don't scrape, don't log in to anything on the user's behalf, and don't use people-search / data-broker sites.
+- **Cite or cut.** Every claim gets a link and, for anything that can go stale, a date.
+- **Never invent.** Don't guess mascots, dates, quotes, or emails. "Not found" is a valid answer.
+- **Their own words beat summaries.** Prefer primary sources over aggregators.
+- **Short quotes only,** attributed; summarize everything else.
+- **Don't scrape or log in** to anything on the user's behalf.

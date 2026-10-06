@@ -22,7 +22,7 @@ npx skills add smampeinado/claude-skills
 | Skill | What It Does |
 |-------|--------------|
 | `gsb-library-scout` | Tells you which licensed GSB Library databases are most likely to answer your research question, what to pull from each, whether your Stanford role gives you access, and which license restrictions apply |
-| `person-background-research` | Builds a short, sourced brief on a specific person (career, current focus, recent news, conversation angles), tailored to why you're researching them |
+| `person-background-research` | Deep research on one person before cold outreach: rebuilt resume, career story, education (down to school mascots), everything they've written, interviews, and the personal details that could make them smile. Saves a sourced dossier |
 
 ## Skill Details
 
@@ -49,22 +49,29 @@ Covers about 150 resources from the GSB Library A–Z list: PitchBook, Capital I
 
 ### Person Background Research
 
-Give Claude a name, something that tells the person apart from others with the same name (company, title, school, or a LinkedIn URL), and what the brief is for. You get back:
+Deep research on an individual before you cold-email them. The goal is personal connection: finding the detail that makes them smile, like a CEO who started as a shop clerk or a journalist's first high school byline. It researches; it doesn't write the email.
 
-- A career snapshot and current role, with each fact linked and dated
-- What they care about right now, drawn from their own posts, talks, and interviews
-- Recent news
-- 2–4 specific angles tailored to your purpose (meeting prep, cold outreach, interview, investor pitch, and more)
-- Watch-outs, plus a list of what couldn't be verified
+Give Claude a name, something that tells them apart (company, school, or URL), and ideally their LinkedIn profile pasted or as a "Save to PDF" export. You get a dossier saved to `research/<name>.md` with:
 
-Works best with web search enabled.
+- **Top 5 hooks** and an **avoid list** up front, plus the overused hook everyone else already uses
+- **Resume** (theirs if public, otherwise rebuilt from LinkedIn), with what each company does
+- **Career story:** fast rises, switches, humble starts, and why they made each move
+- **Education** back to high school, with mascots and rivalries
+- **Hometown, first job, and origin story**
+- **Everything they've written,** including their first published piece, and how they write
+- **Interviews** (podcasts, video, written Q&As) mined for anecdotes, numbers, and opinions
+- **Personal life** (hobbies, teams, pets, causes), each tagged ✅ safe to mention or 👀 background only
+- **Right now:** last 90 days of activity, role-specific focus, and recent news
+- **Contact:** stated preferences and work email (found, or inferred and labeled unverified)
+
+Works best with web search enabled. Pair with `connection-finder`, `fun-angle`, or `cold-email-coach` to write the email.
 
 **Important:**
-- **Professional information only.** It won't collect home addresses, personal contact info, family details, or other private data, and it doesn't use people-search or data-broker sites.
-- **Verify before you rely on it.** Every claim is sourced, but roles and titles change.
-- At Stanford, it hands off to `gsb-library-scout` for licensed people databases (BoardEx, Capital IQ, PitchBook).
+- **Self-shared details only.** Personal details are included only if the person shared them publicly, or (for public figures) they appeared in reputable press. No home addresses, personal contact info, kids' names, real-time location, people-search sites, data brokers, or paid lookup tools.
+- **Knowing isn't the same as using.** Details tagged 👀 help you understand the person but would feel invasive in a cold email.
+- **Verify before you rely on it.** Every claim is sourced and dated, but roles change and inferred emails can be wrong.
 
-**Trigger phrases:** who is, look up, background on, research this person, prep me for my meeting with, what do I need to know about, dossier, bio.
+**Trigger phrases:** deep research on, dig into, background on, everything about, before I email, research this person, full dossier, who is.
 
 ## Repository Structure
 
@@ -76,7 +83,12 @@ claude-skills/
 │   ├── gsb-library-scout/
 │   │   └── SKILL.md
 │   └── person-background-research/
-│       └── SKILL.md
+│       ├── SKILL.md
+│       ├── references/
+│       │   ├── avoid-list.md
+│       │   └── sources.md
+│       └── templates/
+│           └── dossier.md
 ├── CLAUDE.md
 ├── LICENSE
 └── README.md
