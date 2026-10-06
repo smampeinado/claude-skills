@@ -1,0 +1,22 @@
+{
+  "name": "claude-skills",
+  "owner": {
+    "name": "Sam Peinado"
+  },
+  "metadata": {
+    "description": "Claude skills for research, built for Stanford GSB students, researchers, and faculty",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "claude-skills",
+      "description": "Research skills: GSB Library database recommendations and sourced background briefs on individuals",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/gsb-library-scout",
+        "./skills/person-background-research"
+      ]
+    }
+  ]
+}
